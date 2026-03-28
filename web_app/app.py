@@ -11,13 +11,18 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "..", "model", "blood_group_fingerprint_model.h5")
 
-try:
-    # load trained model
-    model = load_model(MODEL_PATH)
-    print(f"Model loaded successfully from {MODEL_PATH}")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    model = None
+model = None
+
+def get_model():
+    global model
+    if model is None:
+        try:
+            print(f"Loading model from {MODEL_PATH}...")
+            model = load_model(MODEL_PATH)
+            print(f"Model loaded successfully from {MODEL_PATH}")
+        except Exception as e:
+            print(f"Error loading model: {e}")
+    return model
 
 classes = ['A+','A-','AB+','AB-','B+','B-','O+','O-']
 
@@ -42,8 +47,9 @@ def index():
         img_array = image.img_to_array(img)/255.0
         img_array = np.expand_dims(img_array, axis=0)
 
-        if model is not None:
-            prediction = model.predict(img_array)
+        current_model = get_model()
+        if current_model is not None:
+            prediction = current_model.predict(img_array)
             max_idx = np.argmax(prediction)
             result = classes[max_idx]
             confidence = round(float(np.max(prediction) * 100), 1)
