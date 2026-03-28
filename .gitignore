@@ -1,0 +1,7 @@
+venv/
+dataset/
+notebook/
+__pycache__/
+*.pyc
+.DS_Store
+web_app/temp.jpg
